@@ -30,3 +30,134 @@
 *.exe
 *.out
 *.app
+
+*plist
+jGehring/OpenGL-XCode/.DS_Store
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Core/.DS_Store
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL/.DS_Store
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Core/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Core Kopie/cmake-build-debug/CMakeFiles/clion-Debug-log.txt
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/.DS_Store
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.DS_Store
+.DS_Store
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.idea/.gitignore
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.idea/misc.xml
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.idea/modules.xml
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.idea/OpenGL.iml
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/.idea/inspectionProfiles/Project_Default.xml
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.ninja_deps
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.ninja_log
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/build.ninja
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/query/cache-v2
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/query/codemodel-v2
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/query/toolchains-v1
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/cache-v2-6cb405bca9afc8bb8403.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-99465ceabd12f23bbbe1.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-7195f5e1a670db4052d6.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/index-2023-06-05T06-28-16-0849.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/target-OpenGL-Debug-c8a0c230de4c0eac34a6.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-d0502afa689c6663d341.json
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/clion-Debug-log.txt
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/clion-environment.txt
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/cmake.check_cache
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/CMakeError.log
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/CMakeOutput.log
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/rules.ninja
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/TargetDirectories.txt
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CMakeDetermineCompilerABI_C.bin
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CMakeDetermineCompilerABI_CXX.bin
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CMakeSystem.cmake
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CompilerIdC/CMakeCCompilerId.c
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeFiles/3.25.2/CompilerIdCXX/CMakeCXXCompilerId.cpp
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/Testing/Temporary/LastTest.log
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Raster2D/DerivedData/*
+
+
+jGehring/OpenGL-XCode/OpenGL-Raster2D/DerivedData/SDKStatCaches.noindex/macosx13.3-22E245-.sdkstatcache
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/cmake_install.cmake
+jGehring/OpenGL-XCode/OpenGL-Lighting Playground/OpenGL/cmake-build-debug/CMakeCache.txt
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Raster2D/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/.gitignore
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/.name
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/misc.xml
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/modules.xml
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/OpenGL-Core Kopie.iml
+jGehring/OpenGL-XCode/OpenGL-Test/.idea/inspectionProfiles/Project_Default.xml
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/build.ninja
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/cmake_install.cmake
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeCache.txt
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/.cmake/api/v1/query/cache-v2
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/.cmake/api/v1/query/codemodel-v2
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/.cmake/api/v1/query/toolchains-v1
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/clion-Debug-log.txt
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/clion-environment.txt
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/cmake.check_cache
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/CMakeError.log
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/CMakeOutput.log
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CMakeDetermineCompilerABI_C.bin
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CMakeDetermineCompilerABI_CXX.bin
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CMakeSystem.cmake
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CompilerIdC/CMakeCCompilerId.c
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/CMakeFiles/3.25.2/CompilerIdCXX/CMakeCXXCompilerId.cpp
+jGehring/OpenGL-XCode/OpenGL-Test/cmake-build-debug/Testing/Temporary/LastTest.log
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL/.vscode/c_cpp_properties.json
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Shader_Playground/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.pbxproj
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/WorkspaceSettings.xcsettings
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/xcuserdata/deinzer.xcuserdatad/xcschemes/OpenGL.xcscheme
+jGehring/OpenGL-XCode/OpenGL-Texture Playground/OpenGL.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/Raytrace-XCode/.vscode/launch.json
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.pbxproj
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.xcworkspace/xcuserdata/deinzer.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcshareddata/xcschemes/raytrace.xcscheme
+jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
