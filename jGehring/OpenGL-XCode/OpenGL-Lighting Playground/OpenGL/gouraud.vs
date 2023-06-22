@@ -4,6 +4,7 @@ layout (location = 0) in vec4 position;
 layout (location = 1) in vec3 normalIn;
 uniform vec3 lightPos;
 uniform mat3 normalTransform;
+uniform vec3 lightColor;
 
 smooth out vec4 inColor;
 layout(std140) uniform TBlock {
@@ -14,7 +15,6 @@ layout(std140) uniform TBlock {
 
 void main() {
     vec3 objectColor = vec3(1.0, 0.0, 0.0);
-    vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
     gl_Position = proj * look * transform * position;
     vec3 vertexPos = vec3(gl_Position);
     vec3 lightDir = lightPos - vertexPos;

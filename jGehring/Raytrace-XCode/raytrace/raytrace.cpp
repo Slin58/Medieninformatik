@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     
     for (int scanline=0; scanline < Yresolution; scanline++) {
         
-        printf("%4d\r", Yresolution-scanline);
+//        printf("%4d\r", Yresolution-scanline);
         y += dy;
         double x = -0.5 * width;
         

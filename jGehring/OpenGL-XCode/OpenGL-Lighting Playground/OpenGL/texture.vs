@@ -30,7 +30,7 @@ void main() {
     vec3 vertexPos = vec3(gl_Position);
     vec3 viewPos = vec3(0.0f, 0.0f, 0.0f);
     viewDir = normalize(viewPos - vertexPos);
-    normal = nt*normalIn;
+    normal = normalTransform*normalIn;
     pos = vertexPos;
     lightPosition = lightPos;
     intTexCoord = texCoord;

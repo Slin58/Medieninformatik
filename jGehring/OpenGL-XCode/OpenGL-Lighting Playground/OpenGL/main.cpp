@@ -19,11 +19,8 @@
 #include <vector>
 #include "iostream"
 #include "WavefrontObject.hpp"
-#include "../../../texture/wmap.h"
-#include "../../../texture/moonmap.h"
-#include "../../../texture/brick.h"
+#include "textures.h"
 #include <glm/gtx/string_cast.hpp>
-#include "ShaderReader.hpp"
 #include "gouraud.vs"
 #include "gouraud.fs"
 #include "phong.vs"
@@ -31,6 +28,8 @@
 #include "texture.vs"
 #include "texture.fs"
 #include "toonify.fs"
+#include "basic.vs"
+#include "basic.fs"
 using namespace std;
 
 GLFWwindow* window = nullptr;
@@ -41,79 +40,17 @@ struct Tblock{
     glm::mat4 look;
     glm::mat4 proj;
 } Tblock;
-const GLfloat vertexPositions[] = {
-    0.75f, 0.75f, 0.0f, 1.0f,
-    0.75f, -0.75f, 0.0f, 1.0f,
-    -0.75f, -0.75f, 0.0f, 1.0f,
-    
-};
 
-
-GLfloat tz = 0;
 struct Tblock tblock;
 glm::vec3 rot(0.0f);
 glm::vec3 trans(0.0f);
 GLuint positionBufferObject = 0;
-GLint colorBufferObject = 0;
-GLuint vertexBufferArray = 0;
+vector<GLuint> vertexBufferArrays = {};
 GLuint colorBufferArray = 0;
 GLuint theProgram = 0;
 GLfloat fovy = 45.0f;
-int triangleCount;
+int triangleCount = 0;
 bool lines = false;
-glm::vec3 lightPos(1.0f, 1.0f, 1.0f);
-
-const char fs1[] = R"EOF(
-#version 330
-out vec4 outColor;
-
-void main(){
-    outColor = vec4(0.0, 1.0, 0.0, 1.0);
-}
-)EOF";
-
-
-const char basicLightingVertex[] = R"EOF(
-#version 330
-layout (location = 0) in vec4 position;
-layout (location = 1) in vec3 normalIn;
-
-out vec3 normal;
-layout(std140) uniform TBlock {
-mat4 transform;
-mat4 look;
-mat4 proj;
-};
-
-void main() {
-gl_Position = proj * look * transform * position;
-vec3 vertexPos = vec3(gl_Position);
-vec3 lightDir = lightPos - vertexPos;
-normal = normalIn;
-}
-)EOF";
-
-
-const char basicLightingFragment[] = R"EOF(
-#version 330
-out vec4 outColor;
-smooth in vec3 normal;
-in vec3 lightDir;
-
-void main(){
-    vec3 l = normalize(lightDir);
-    vec3 n = normalize(normal);
-    float NdotL = max(dot(l, n), 0.0);
-    NdotL = min(NdotL, 1.0);
-    outColor = NdotL*vec4(0.0, 1.0, 0.0, 1.0);
-}
-)EOF";
-//float otColor = NdotL*vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-//vec3 dx = dFdx( pos );
-//vec3 dy = dFdy( pos );
-//vec3 N = normalize(cross(dx, dy));
-//N *= sign(N.z);
-
 
 GLuint CreateShader(GLenum eShaderType, const char *strShader)
 {
@@ -165,19 +102,13 @@ void RenderScene(void)
     glFrontFace(GL_CCW);
     glUseProgram(theProgram);
     
-    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
-
-//
-//    glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-//    glUniformMatrix4fv(glGetUniformLocation(theProgram, "lightColor"), 1, GL_FALSE, glm::value_ptr(lightColor));
     
     tblock.transform = glm::rotate(glm::mat4(1.0f), rot.x, glm::vec3(1,0,0));
     tblock.transform = glm::rotate(tblock.transform, rot.y, glm::vec3(0,1,0));
     tblock.transform = glm::rotate(tblock.transform, rot.z, glm::vec3(0,0,1));
     tblock.transform = glm::translate(tblock.transform, trans);
     tblock.look = glm::lookAt(glm::vec3(0,0,-3), glm::vec3(0,0,0), glm::vec3(0,1,1));
-    glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(tblock.transform)));
     float fovyRad = fovy*3.1415/180;
     tblock.proj = glm::perspective(fovyRad, 1.0f, 0.1f, 20.0f);
    
@@ -194,6 +125,10 @@ void RenderScene(void)
     memcpy(blockBuffer + offset[1], glm::value_ptr(tblock.look), sizeof(tblock.look));
     memcpy(blockBuffer + offset[2], glm::value_ptr(tblock.proj), sizeof(tblock.proj));
     
+    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(tblock.transform)));
+    glUniformMatrix3fv(glGetUniformLocation(theProgram, "lightColor"), 1, GL_FALSE, glm::value_ptr(lightColor));
     glUniformMatrix3fv(glGetUniformLocation(theProgram, "lightPos"), 1, GL_FALSE, glm::value_ptr(lightPos));
     glUniformMatrix3fv(glGetUniformLocation(theProgram, "normalTransform"), 1, GL_FALSE, glm::value_ptr(normalTransform));
     
@@ -204,15 +139,42 @@ void RenderScene(void)
     glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, uBuf);
     glUniform1i(glGetUniformLocation(theProgram, "tex"), 27);
 
-    
-    glBindVertexArray(vertexBufferArray);
-    if(!lines) glDrawArrays(GL_TRIANGLES, 0, triangleCount);
-    else glDrawArrays(GL_LINE_LOOP, 0, triangleCount);
+    for(GLuint vba : vertexBufferArrays){
+        glBindVertexArray(vba);
+        if(!lines) glDrawArrays(GL_TRIANGLES, 0, triangleCount);
+        else glDrawArrays(GL_LINE_LOOP, 0, triangleCount);
+        glFlush();
+    }
     glBindVertexArray(0);
     
     glfwSwapBuffers(window);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
+}
+
+static void bindWavefrontObject(string path, bool triangleNormals) {
+    GLuint vba = 0;
+    glGenVertexArrays(1, &vba);
+    glBindVertexArray(vba);
+    vertexBufferArrays.push_back(vba);
+    // setup vertex buffer
+    glGenBuffers(1, &positionBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    WavefrontObject object = readWavefrontObject(path, triangleNormals);
+    object = readWavefrontObject(path, true);
+    vector<float> buffer = object.transformToBuffer();
+    int stride = 0;
+    triangleCount = static_cast<int>(object.vertices.size()*3);
+    if(object.hasNormals && object.hasTextures) stride = 9;
+    else if(object.hasTextures) stride = 6;
+    else if(object.hasNormals) stride = 7;
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    if(object.hasTextures) glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, 0);
+    if(object.hasNormals) glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*4));
+    if(object.hasTextures) glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*(object.hasNormals ? 7 : 4)));
 }
 
 ///////////////////////////////////////////////////////////
@@ -221,28 +183,10 @@ void SetupRC(void)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     
-    glGenVertexArrays(1, &vertexBufferArray);
-    glBindVertexArray(vertexBufferArray);
-    // setup vertex buffer
-    glGenBuffers(1, &positionBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-    //    WavefrontObject object = readWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/AnnoComplete/AnnoComplete.obj");
-    WavefrontObject object = readWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/cube_without_normals.obj", true);
-    vector<float> buffer = object.transformToBuffer();
-    triangleCount = static_cast<int>(object.vertices.size()*3);
-    int stride = 0;
-    if(object.hasNormals && object.hasTextures) stride = 9;
-    else if(object.hasTextures) stride = 6;
-    else if(object.hasNormals) stride = 7;
-    //    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
-    //    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    if(object.hasTextures) glEnableVertexAttribArray(2);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, 0);
-    if(object.hasNormals) glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*4));
-    if(object.hasTextures) glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*(object.hasNormals ? 7 : 4)));
+    
+    
+//    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/cube_without_normals.obj", true);
+    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/sphere.obj", false);
     
     GLuint tex;
     GLuint sampler;
@@ -262,9 +206,6 @@ void SetupRC(void)
     
     // make shaders
     vector<GLuint> shaders;
-    
-//    char *vertex = readVertexShader("gouraud");
-//    char *fragment = readFragmentShader("gouraud");
     
     shaders.push_back(CreateShader(GL_VERTEX_SHADER, gouraudVertex));
     shaders.push_back(CreateShader(GL_FRAGMENT_SHADER, gouraudFragment));
