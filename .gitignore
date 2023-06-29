@@ -3,6 +3,10 @@
 
 # Pictures
 *.ppm
+*.png
+
+# Scene Descriptions
+*.data
 
 # Compiled Object files
 *.slo
@@ -164,3 +168,5 @@ jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.xcworkspace/xcuserda
 jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/project.xcworkspace/xcuserdata/jogehring.xcuserdatad/UserInterfaceState.xcuserstate
 jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcshareddata/xcschemes/raytrace.xcscheme
 jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+jGehring/Raytrace-XCode/raytrace/data/dflt.data
+jGehring/Raytrace-XCode/raytrace/data/scene.data

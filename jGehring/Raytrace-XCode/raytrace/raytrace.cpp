@@ -18,6 +18,7 @@ vector<Surface> surfaces;
 vector<Property> properties;
 vector<Objekt> objekte;
 vector<Light> lights;
+Surface poly_surface;
 
 int Xresolution = 1250;
 int Yresolution = 1250;
@@ -81,45 +82,66 @@ void add_quadric(char *n, double a, double b, double c, double d, double e, doub
     fprintf(stderr,"  adding quadric %s %f %f %f %f %f %f %f %f %f %f\n", n, a,b,c,d,e,f,g,h,j,k);
     surfaces.push_back(Surface(n, a,b,c,d,e,f,g,h,j,k));
 };
+
+void init_polygon_surface(char *n){
+    Surface poly_surface(n, {}, {});
+    surfaces.push_back(poly_surface);
+}
+
+void add_index(int i){
+    fprintf(stderr,"  adding index %d \n", i);
+    surfaces.back().indices.push_back(i);
+};
+
 void add_property(char *n,  double ar, double ag, double ab, double r, double g, double b, double s, double m) {
     fprintf(stderr,"  adding prop %f %f %f %f %f\n", r, g, b, s, m);
     properties.push_back(Property(n, Color(ar, ag, ab), Color(r, g, b), s, m));
 };
-void add_objekt(char *ns, char *np) {
+void add_vertex(double x, double y, double z){
+    fprintf(stderr,"  adding vertex %f %f %f \n", x, y, z);
+    surfaces.back().vertices.push_back(Vector(x,y,z));
+}
+
+void add_objekt(char *sName, char *pName) {
     Surface *s = NULL;
     Property *p = NULL;
-    string ss(ns);
-    string sp(np);
+    string surfaceName(sName);
+    string propertyName(pName);
     
     for(vector<Surface>::iterator i = surfaces.begin(); i != surfaces.end(); ++i)
-        if(i->getName() == ss) {
+        if(i->getName() == surfaceName) {
             s = &(*i);
             break;
         }
     for(vector<Property>::iterator i = properties.begin(); i != properties.end(); ++i)
-        if(i->getName() == sp) {
+        if(i->getName() == propertyName) {
             p = &(*i);
             break;
         }
     
     if(s == NULL) {
-        fprintf(stderr, "Surface not found: %s\n", ns);
+        fprintf(stderr, "Surface not found: %s\n", sName);
         exit(1);
     }
     if(p == NULL) {
-        fprintf(stderr, "Property not found: %s\n", np);
+        fprintf(stderr, "Property not found: %s\n", pName);
         exit(1);
     }
     
     objekte.push_back(Objekt(s, p));
-    fprintf(stderr, "  adding object: surface %s, property %s\n", ns, np);
-}
+    fprintf(stderr, "  adding object: surface %s, property %s\n", sName, pName);
+};
+
+void add_sphere(char *n, double posX, double posY, double posZ, double radius){
+    fprintf(stderr,"  adding sphere %f %f %f %f \n", posX, posY, posZ, radius);
+    surfaces.push_back(Surface(n, 1.0, 0, 0, -2.0*posX, 1.0, 0, -2.0*posY, -2.0*posZ, 0.0, (posX*posX)+(posY*posY)+(posZ*posZ)-(radius*radius)));
+};
 }
 
 int main(int argc, char* argv[])
 {
     /* parse the input file */
-    yyin = fopen("data/dflt.data","r");
+    yyin = fopen("data/scene.data","r");
     if(yyin == NULL) {
         fprintf(stderr, "Error: Konnte Datei nicht oeffnen\n");
         return 1;
@@ -143,7 +165,7 @@ int main(int argc, char* argv[])
     
     for (int scanline=0; scanline < Yresolution; scanline++) {
         
-//        printf("%4d\r", Yresolution-scanline);
+        //        printf("%4d\r", Yresolution-scanline);
         y += dy;
         double x = -0.5 * width;
         
@@ -151,9 +173,9 @@ int main(int argc, char* argv[])
             // ray.setDirection(Vector(x, y, 0.0).vsub(ray.getOrigin()).normalize());
             ray.setDirection(lookat.vadd(u_Vec.svmpy(x).vadd(v_Vec.svmpy(y))).vsub(ray.getOrigin()).normalize());
             x += dx;
-//            Color color = ray.shade(objekte, lights, sx, scanline);
+            //            Color color = ray.shade(objekte, lights, sx, scanline);
             Color color = ray.shade(objekte, lights);
-
+            
             
             bild.set(sx, scanline,
                      color.r > 1.0 ? 255 : int(255 * color.r),

@@ -59,10 +59,14 @@ extern void add_ambience(double r, double g, double b);
 extern void add_fovy(double fov);
 extern void add_up(double x, double y, double z);
 extern void add_aspect(double aspect);
+extern void add_sphere(char *n, double posX, double posY, double posZ, double radius);
 extern void add_quadric(char *n, double a, double b, double c, double d, double e, double f, double g, double h, double j, double k);
 extern void add_property(char *n, double ar, double ag, double ab, double r, double g, double b, double s, double m);
-extern void add_objekt(char *ns, char *np);
+extern void add_objekt(char *sName, char *pName);
 extern void add_light(char *n, double dirx, double diry, double dirz, double colr, double colg, double colb);
+extern void add_vertex(double x, double y, double z);
+extern void init_polygon_surface(char *n);
+extern void add_index(int i);
 %}
 
 
@@ -74,7 +78,7 @@ extern void add_light(char *n, double dirx, double diry, double dirz, double col
 %token <floatval> FLOAT
 %token <stringval> STRING
 %token RESOLUTION EYEPOINT LOOKAT UP FOVY ASPECT
-%token OBJECT QUADRIC POLY
+%token OBJECT QUADRIC SPHERE POLY
 %token VERTEX
 %token PROPERTY AMBIENT DIFFUSE SPECULAR MIRROR
 %token AMBIENCE BACKGROUND
@@ -231,6 +235,7 @@ surfaces
 one_surface
     : quadric_surface
     | polygon_surface
+    | sphere_surface
     ;
 
 quadric_surface
@@ -242,10 +247,19 @@ quadric_surface
       }
     ;
 
+sphere_surface
+: OBJECT STRING SPHERE realVal realVal realVal realVal
+{
+    printf("sphere added %s %f %f %f %f \n", $2, $4, $5, $6, $7);
+    add_sphere($2, $4, $5, $6, $6);
+}
+;
+    
 polygon_surface
     : OBJECT STRING POLY 
       {
-	printf("object poly\n"); 
+          printf("add polygon surface\n");
+          init_polygon_surface($2);
       }
       vertex_section polygon_section
     ;
@@ -261,7 +275,9 @@ vertices
 
 one_vertex
     : VERTEX realVal realVal realVal
-      { printf("vertex %f %f %f\n", $2, $3, $4); }
+      { printf("vertex %f %f %f\n", $2, $3, $4);
+          add_vertex($2, $3, $4);
+      }
     ;
 
 polygon_section
@@ -275,7 +291,7 @@ polygons
 
 one_polygon
     : POLY  
-      { printf("polygon"); }
+      { printf("polygon\n"); }
       indices
       { printf("\n"); }
     ;
@@ -287,7 +303,7 @@ indices
 
 one_index
 	: index
-	{ printf("polygon idx %d\n", $1); }
+	{ add_index($1); }
 	;
 
 property_section
