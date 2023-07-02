@@ -38,6 +38,18 @@
 *.out
 *.app
 
+# Other Stuff
+*.xcworkspace
+*.xcworkspacedata
+*.xcsettings
+*.xcactivitylog
+*.xcresult
+*.pbxproj
+*.xcscheme
+*.xcbkptlist
+
+
+
 *plist
 jGehring/OpenGL-XCode/.DS_Store
 jGehring/OpenGL-XCode/OpenGL-Compatibility/OpenGL.xcodeproj/project.pbxproj
@@ -170,3 +182,5 @@ jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcshareddata/xcschemes/raytr
 jGehring/Raytrace-XCode/raytrace/raytrace.xcodeproj/xcuserdata/jogehring.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 jGehring/Raytrace-XCode/raytrace/data/dflt.data
 jGehring/Raytrace-XCode/raytrace/data/scene.data
+jGehring/OpenGL-XCode/*/DerivedData/
+
