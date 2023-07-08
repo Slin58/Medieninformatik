@@ -116,7 +116,7 @@ void Image::save(const char *ppm)
     }
     fprintf(stderr,"mode = %d   %s\n", mode, ppm);
     fprintf(f,"%d %d\n255\n", xSize, ySize);
-#pragma omp parallel for collapse(2)
+    
     for(int y = 0; y < ySize; y++) {
         for(int x = 0; x < xSize; x++) {
             switch(mode) {

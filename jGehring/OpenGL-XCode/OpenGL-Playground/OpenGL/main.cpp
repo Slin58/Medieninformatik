@@ -35,7 +35,7 @@
 using namespace std;
 using namespace glm;
 GLFWwindow* window = nullptr;
-
+#define PI 3.14159265
 
 struct Tblock{
     glm::mat4 transform;
@@ -46,8 +46,8 @@ struct Tblock{
 struct Tblock tblock;
 glm::vec3 rot(0.0f);
 glm::vec3 trans(0.0f);
-GLuint positionBufferObject = 0;
 vector<GLuint> vertexBufferArrays = {};
+vector<GLuint> vertexBufferObjects = {};
 GLuint colorBufferArray = 0;
 GLuint theProgram = 0;
 GLfloat fovy = 45.0f;
@@ -93,26 +93,52 @@ GLuint CreateProgram(const vector<GLuint> &shaderList)
     return program;
 }
 
+static void bindVBO(WavefrontObject &object) {
+    GLuint vba = 0;
+    GLuint vbo = 0;
+    glGenVertexArrays(1, &vba);
+    glBindVertexArray(vba);
+    vertexBufferArrays.push_back(vba);
+    // setup vertex buffer
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    vertexBufferObjects.push_back(vbo);
+    vector<float> buffer = object.transformToBuffer();
+    int stride = 0;
+    triangleCount = static_cast<int>(object.vertices.size()*3);
+    if(object.hasNormals && object.hasTextures) stride = 9;
+    else if(object.hasTextures) stride = 6;
+    else if(object.hasNormals) stride = 7;
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    if(object.hasTextures) glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, 0);
+    if(object.hasNormals) glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*4));
+    if(object.hasTextures) glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*(object.hasNormals ? 7 : 4)));
+}
+
 ///////////////////////////////////////////////////////////
 // Called to draw scene
 void RenderScene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glClear(GL_DEPTH_BUFFER_BIT);
-//            glEnable(GL_CULL_FACE);
-//            glEnable(GL_DEPTH_TEST);
-//            glFrontFace(GL_CCW);
+        glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CCW);
+    
+    glEnable(GL_DEPTH_TEST);
     glUseProgram(theProgram);
     
-    
+    glm::vec3 viewPos(0,0,-3);
     
     tblock.transform = glm::rotate(glm::mat4(1.0f), rot.x, glm::vec3(1,0,0));
     tblock.transform = glm::rotate(tblock.transform, rot.y, glm::vec3(0,1,0));
     tblock.transform = glm::rotate(tblock.transform, rot.z, glm::vec3(0,0,1));
     tblock.transform = glm::translate(tblock.transform, trans);
-    tblock.look = glm::lookAt(glm::vec3(0.0,0.0,5.0), glm::vec3(0.0,0.0,0.0), glm::vec3(0,1,0));
+    tblock.look = glm::lookAt(viewPos, glm::vec3(0,0,0), glm::vec3(0,1,0));
     float fovyRad = fovy*3.1415/180;
-    tblock.proj = glm::perspective(fovyRad, 1.0f, 0.1f, 20.0f);
+    tblock.proj = glm::perspective(fovyRad, 1.0f, 0.1f, 10.0f);
     
     GLuint blockIndex = glGetUniformBlockIndex(theProgram, "TBlock");
     GLint blockSize;
@@ -127,12 +153,14 @@ void RenderScene(void)
     memcpy(blockBuffer + offset[1], glm::value_ptr(tblock.look), sizeof(tblock.look));
     memcpy(blockBuffer + offset[2], glm::value_ptr(tblock.proj), sizeof(tblock.proj));
     
-    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, -3.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(tblock.transform)));
     glUniformMatrix3fv(glGetUniformLocation(theProgram, "lightColor"), 1, GL_FALSE, glm::value_ptr(lightColor));
     glUniformMatrix3fv(glGetUniformLocation(theProgram, "lightPos"), 1, GL_FALSE, glm::value_ptr(lightPos));
     glUniformMatrix3fv(glGetUniformLocation(theProgram, "normalTransform"), 1, GL_FALSE, glm::value_ptr(normalTransform));
+    glUniformMatrix3fv(glGetUniformLocation(theProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(viewPos));
+
     
     GLuint uBuf;
     glGenBuffers(1, &uBuf);
@@ -150,43 +178,16 @@ void RenderScene(void)
     glBindVertexArray(0);
     
     glfwSwapBuffers(window);
-//            glDisable(GL_CULL_FACE);
-//            glDisable(GL_DEPTH_TEST);
+                glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 }
 
 static void bindWavefrontObject(string path, bool triangleNormals) {
-    GLuint vba = 0;
-    glGenVertexArrays(1, &vba);
-    glBindVertexArray(vba);
-    vertexBufferArrays.push_back(vba);
-    // setup vertex buffer
-    glGenBuffers(1, &positionBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-    WavefrontObject object = readWavefrontObject(path, triangleNormals);
-    object = readWavefrontObject(path, true);
-    vector<float> buffer = object.transformToBuffer();
-    int stride = 0;
-    triangleCount = static_cast<int>(object.vertices.size()*3);
-    if(object.hasNormals && object.hasTextures) stride = 9;
-    else if(object.hasTextures) stride = 6;
-    else if(object.hasNormals) stride = 7;
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    if(object.hasTextures) glEnableVertexAttribArray(2);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, 0);
-    if(object.hasNormals) glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*4));
-    if(object.hasTextures) glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*(object.hasNormals ? 7 : 4)));
+    WavefrontObject object = readWavefrontObject(path, true);
+    bindVBO(object);
 }
 
 void drawCube(bool createIdenticalNormals){
-    GLuint vba = 0;
-    glGenVertexArrays(1, &vba);
-    glBindVertexArray(vba);
-    vertexBufferArrays.push_back(vba);
-    // setup vertex buffer
-    glGenBuffers(1, &positionBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
     WavefrontObject cube  = WavefrontObject(true);
     vector<vec3> vertices = {};
     for(int i = 1; i <= 2; i++){
@@ -343,6 +344,120 @@ void drawCube(bool createIdenticalNormals){
     if(cube.hasTextures) glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*stride, (const GLvoid*) (sizeof(GLfloat)*(cube.hasNormals ? 7 : 4)));
 }
 
+
+void drawSphere(bool createIdenticalNormals, double radius = 1, int cuts = 8){
+    WavefrontObject sphere  = WavefrontObject(createIdenticalNormals);
+    vector<vec3> templateVertices = {};
+    int count = 1;
+    double cut = PI/cuts;
+    templateVertices.push_back(vec3(0.0, 1.0, 0.0));
+    for(double theta = 1; theta <= cuts; theta++){
+        for(double phi = 0; phi <= 2*cuts; phi++){
+            double newX = radius * sin(theta*cut) * cos(phi*cut);
+            double newZ = radius * sin(theta*cut) * sin(phi*cut);
+            double newY = radius * cos(theta*cut);
+            templateVertices.push_back(vec3(newX, newY, newZ));
+            if(theta == cuts) break;
+        }
+    }
+    for(int i = 1; i <= 2*cuts; i++){
+        sphere.vertices.push_back(templateVertices[0].x);
+        sphere.vertices.push_back(templateVertices[0].y);
+        sphere.vertices.push_back(templateVertices[0].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        sphere.vertices.push_back(templateVertices[i+1].x);
+        sphere.vertices.push_back(templateVertices[i+1].y);
+        sphere.vertices.push_back(templateVertices[i+1].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        sphere.vertices.push_back(templateVertices[i].x);
+        sphere.vertices.push_back(templateVertices[i].y);
+        sphere.vertices.push_back(templateVertices[i].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+    }
+    for(int i = 1; i < templateVertices.size() - 1; i+=1){
+        sphere.vertices.push_back(templateVertices[i].x);
+        sphere.vertices.push_back(templateVertices[i].y);
+        sphere.vertices.push_back(templateVertices[i].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        if(i+2*cuts+2 < templateVertices.size()){
+            sphere.vertices.push_back(templateVertices[i+1].x);
+            sphere.vertices.push_back(templateVertices[i+1].y);
+            sphere.vertices.push_back(templateVertices[i+1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].x);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].y);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].x);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].y);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            sphere.vertices.push_back(templateVertices[i+1].x);
+            sphere.vertices.push_back(templateVertices[i+1].y);
+            sphere.vertices.push_back(templateVertices[i+1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            sphere.vertices.push_back(templateVertices[i+2*cuts+2].x);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+2].y);
+            sphere.vertices.push_back(templateVertices[i+2*cuts+2].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+        }
+        else {
+            sphere.vertices.push_back(templateVertices[i-2*cuts-1].x);
+            sphere.vertices.push_back(templateVertices[i-2*cuts-1].y);
+            sphere.vertices.push_back(templateVertices[i-2*cuts-1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            sphere.vertices.push_back(templateVertices[i-1].x);
+            sphere.vertices.push_back(templateVertices[i-1].y);
+            sphere.vertices.push_back(templateVertices[i-1].z);
+            sphere.vertices.push_back(1.0);
+            sphere.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+        }
+    }
+    for(auto i = templateVertices.size() - 1; i > 0; i--){
+        sphere.vertices.push_back(templateVertices[templateVertices.size() - 1].x);
+        sphere.vertices.push_back(templateVertices[templateVertices.size() - 1].y);
+        sphere.vertices.push_back(templateVertices[templateVertices.size() - 1].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        sphere.vertices.push_back(templateVertices[i-1].x);
+        sphere.vertices.push_back(templateVertices[i-1].y);
+        sphere.vertices.push_back(templateVertices[i-1].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        sphere.vertices.push_back(templateVertices[i].x);
+        sphere.vertices.push_back(templateVertices[i].y);
+        sphere.vertices.push_back(templateVertices[i].z);
+        sphere.vertices.push_back(1.0);
+        sphere.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+    }
+    
+    bindVBO(sphere);
+}
+
 ///////////////////////////////////////////////////////////
 // Setup the rendering state
 void SetupRC(void)
@@ -351,9 +466,10 @@ void SetupRC(void)
     
     
     
-                bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/cube_without_normals.obj", true);
-    //        bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/sphere.obj", false);
-//    drawCube(true);
+    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/cube_without_normals.obj", false);
+//    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/sphere.obj", false);
+    //    drawCube(true);
+//    drawSphere(false, 1.0, 20);
     
     GLuint tex;
     GLuint sampler;

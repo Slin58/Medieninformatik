@@ -2,6 +2,7 @@
 #include "math.h"
 #include "float.h"
 
+
 using namespace std;
 
 /*----------------------------------------------------------------------------*/
@@ -24,28 +25,25 @@ Color Ray::shade(vector<Objekt> &objects, vector<Light> &lights)
     Color cur_color;
     double min_t = DBL_MAX, t;
     
-    Vector intersection_position,	normal;
+    Vector intersection_position, normal, closestNormal;
     Ray lv, reflected_ray;
     bool something_intersected = false;
     
     for (vector<Objekt>::iterator o = objects.begin(); o != objects.end(); ++o) {
         
-        t = intersect(*o);
+        t = intersect(*o, closestNormal);
         if (0.0 < t && t < min_t) {
+            normal = closestNormal;
             min_t = t;
             closest = &(*o);
         }
     }
     
     if (closest == NULL) {
-        //		if (depth == 0)
-        //			cur_color = background; //background_color;
-        //		else
-        //			cur_color = black;
         cur_color = background;
     } else {
         intersection_position = origin.vadd(direction.svmpy(min_t));
-        normal = closest->get_normal(intersection_position);
+        if(closest->getSurface()->isQuadricSurface) normal = closest->get_normal(intersection_position);
         reflected_ray = reflect(intersection_position, normal);
         cur_color = closest->getProperty().getAmbient().outprodc(ambience);  // black statt Globales Ambient
         
@@ -53,8 +51,9 @@ Color Ray::shade(vector<Objekt> &objects, vector<Light> &lights)
             lv.setDirection(li->getDirection());
             lv.setOrigin(intersection_position);
             something_intersected = false;
+            Vector dummy(100.0, 0, 0);
             for (vector<Objekt>::iterator o = objects.begin(); o != objects.end(); ++o) {
-                t = lv.intersect(*o);
+                t = lv.intersect(*o, dummy);
                 if (t > 0.0) {
                     something_intersected = true;
                     break;
@@ -138,21 +137,21 @@ Ray Ray::reflect(Vector &origin, Vector &normal)
     return(reflection);
 } /* reflect() */
 
-double Ray::intersect(Objekt &obj)
-{
-    double a, b, c, d, e, f, g, h, j, k, t = -1.0,
+double Ray::calculateQuadricT(Surface &surf) {
+    double a, b, c, d, e, f, g, h, j, k,
     acoef, bcoef, ccoef, root, disc;
+    double t = -1.0;
     
-    a = obj.getSurface()->a;
-    b = obj.getSurface()->b;
-    c = obj.getSurface()->c;
-    d = obj.getSurface()->d;
-    e = obj.getSurface()->e;
-    f = obj.getSurface()->f;
-    g = obj.getSurface()->g;
-    h = obj.getSurface()->h;
-    j = obj.getSurface()->j;
-    k = obj.getSurface()->k;
+    a = surf.a;
+    b = surf.b;
+    c = surf.c;
+    d = surf.d;
+    e = surf.e;
+    f = surf.f;
+    g = surf.g;
+    h = surf.h;
+    j = surf.j;
+    k = surf.k;
     
     acoef = Vector(direction.dot(Vector(a, b, c)),
                    e*direction.y + f*direction.z,
@@ -178,6 +177,61 @@ double Ray::intersect(Objekt &obj)
             if (t < 0.0) {
                 t = ( -bcoef + root ) / ( acoef + acoef );
             }
+        }
+    }
+    return t;
+}
+
+double Ray::intersect(Objekt &obj, Vector &normal)
+{
+    Surface *surf = obj.getSurface();
+    double  t = -1.0;
+    if(surf->isQuadricSurface){
+        t = calculateQuadricT(*surf);
+    }
+    else {
+//        char *n = "test";
+//        double posX = surf->boundingVolume[0];
+//        double posY = surf->boundingVolume[1];
+//        double posZ = surf->boundingVolume[2];
+//        double radius = surf->boundingVolume[3];
+//        Surface bv(n, 1.0, 0, 0, -2.0*posX, 1.0, 0, -2.0*posY, -2.0*posZ, 0.0, (posX*posX)+(posY*posY)+(posZ*posZ)-(radius*radius));
+//        double isIntersected = calculateQuadricT(bv);
+//        if(isIntersected < 0.001){
+            //Möller-Trumbore algorithm
+            const float EPSILON = 0.0000001;
+            for (int i = 0; i < surf->indices.size(); i+=3){
+                Vector vertex0 = surf->vertices[surf->indices[i]-1];
+                Vector vertex1 = surf->vertices[surf->indices[i+1]-1];
+                Vector vertex2 = surf->vertices[surf->indices[i+2]-1];
+                Vector edge1, edge2, h, s, q;
+                float a, f, u, v;
+                edge1 = vertex1.vsub(vertex0);
+                edge2 = vertex2.vsub(vertex0);
+                h = direction.cross(edge2);
+                a = edge1.dot(h);
+                
+                if (a > -EPSILON && a < EPSILON)
+                    return false;    // This ray is parallel to this triangle.
+                
+                f = 1.0 / a;
+                s = origin.vsub(vertex0);
+                u = f * s.dot(h);
+                
+                q = s.cross(edge1);
+                v = f * direction.dot(q);
+                
+                if (v < 0.0 || u + v > 1.0 || u < 0.0 || u > 1.0)
+                    continue;
+                else{
+                    // At this stage we can compute t to find out where the intersection point is on the line.
+                    t = f * edge2.dot(q);
+                    if(normal.veclength() != 10.0){
+                        normal = (vertex1.vsub(vertex0)).cross(vertex2.vsub(vertex0)).normalize();
+                    }
+                    break;
+                }
+//            }
         }
     }
     return ((0.001 < t) ? t : -1.0);

@@ -273,62 +273,32 @@ void scanline(const vector<Edge> &polygon, int r, int g, int b){
 }
 
 void scanline(const vector<hPoint> &polygon, int r, int g, int b){
-    
-    //init list of passive edges and sort it
-    vector<PassiveEdge> passiveEdges = {};
-    for(int i = 1; i <= polygon.size(); i++){
+    vector<Edge> edges = {};
+    auto size = polygon.size() - 1;
+    for(int i = 1; i <= size; i++){
         int xmin = min(polygon[i].vec[0], polygon[i-1].vec[0]);
         int ymin = min(polygon[i].vec[1], polygon[i-1].vec[1]);
         int xmax = max(polygon[i].vec[0], polygon[i-1].vec[0]);
         int ymax = max(polygon[i].vec[1], polygon[i-1].vec[1]);
-        
-        PassiveEdge edge = PassiveEdge(xmin, ymin, xmax, ymax);
-        passiveEdges.push_back(edge);
+        if(polygon[i-1].vec[1] > polygon[i].vec[1] && polygon[i-1].vec[0] < polygon[i].vec[0]){
+            int swap = xmin;
+            xmin = xmax;
+            xmax = swap;
+        }
+            edges.push_back(Edge(xmin, ymin, xmax, ymax));
     }
-    sort(passiveEdges.begin(), passiveEdges.end(), compareByYmin);
-    
-    int y = passiveEdges[0].ymin;
-    int limit = passiveEdges.back().ymax;
-    vector<ActiveEdge> activeEdges = {};
-    
-    while(y <= limit){
-        //move passive edges to active
-        for(auto &edge : passiveEdges){
-            if(edge.ymin == y){
-                float xmax = edge.xmax;
-                float dx = (xmax - edge.xmin)/(edge.ymax - edge.ymin);
-                ActiveEdge activeEdge = ActiveEdge(edge.xmin, edge.ymax, dx);
-                activeEdges.push_back(activeEdge);
-            }
+        int xmin = min(polygon[0].vec[0], polygon[size].vec[0]);
+        int ymin = min(polygon[0].vec[1], polygon[size].vec[1]);
+        int xmax = max(polygon[0].vec[0], polygon[size].vec[0]);
+        int ymax = max(polygon[0].vec[1], polygon[size].vec[1]);
+        if(polygon[0].vec[1] > polygon[size].vec[1] && polygon[0].vec[0] < polygon[size].vec[0]){
+            int swap = xmin;
+            xmin = xmax;
+            xmax = swap;
         }
-        //remove non-active edges
-        for(auto iter = activeEdges.begin(); iter != activeEdges.end();){
-            if(iter->ymax == y){
-                iter = activeEdges.erase(iter);
-            } else{
-                ++iter;
-            }
-        }
-        
-        sort(activeEdges.begin(), activeEdges.end(), compareByXs);
-        
-        bool isDrawing = true;
-        
-        for(int i = 1; i <= activeEdges.size(); i++){
-            if(isDrawing){
-                for(int x = ceil(activeEdges[i -1].xs); x <= floor(activeEdges[i].xs); x++){
-                    setPixel(x, y, r, g, b);
-                }
-            }
-            isDrawing = !isDrawing;
-        }
-        
-        for(auto &edge : activeEdges){
-            edge.xs += edge.dx;
-        }
-        y++;
+        edges.push_back(Edge(xmin, ymin, xmax, ymax));
+        scanline(edges, r, g, b);
     }
-}
 
 hPoint translate(int tx, int ty, hPoint point){
     Matrix3f s = (Matrix3f() << 1, 0, tx, 0, 1, ty, 0, 0, 1).finished();
@@ -474,8 +444,13 @@ int main(int argc, char* argv[])
     
     SetupRC();
     ////////// put your framebuffer drawing code here /////////////
-    pythagoras();
-//    fillRectangle(40, 40, 300, 300);
+    //    pythagoras();
+//    vector<hPoint> polygon = {hPoint(20, 120, 1),hPoint(50, 180, 1), hPoint(120, 120, 1), hPoint(50, 60, 1)};
+    vector<hPoint> polygon = {hPoint(20, 120, 1),hPoint(50, 180, 1),hPoint(60, 220, 1), hPoint(180, 180), hPoint(220, 120, 1), hPoint(50, 60, 1)};
+
+    scanline(polygon, 250, 0, 0);
+    drawPolygon(polygon, 0, 250, 0);
+    //    fillRectangle(40, 40, 300, 300);
     
     glutMainLoop();
     

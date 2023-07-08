@@ -207,7 +207,7 @@ void midpointCircle(int x, int y, int radius, int r, int g, int b){
 }
 
 
-void bezierCurve(std::vector<Point> polygon){
+void deCasteljau(std::vector<Point> &polygon){
     std::vector<std::vector<Point>> newPoints(polygon.size(), std::vector<Point>(polygon.size()));
     std::vector<Point> curve = {};
     
@@ -234,7 +234,8 @@ void deBoor(vector<float> T, vector<Point> b, int n){
     auto m = b.size()-1;
     vector<vector<Point>> temp(m+n, std::vector<Point>(n));
     vector<Point> result = {};
-    for(double t = 0.0; t <= T[m + 1]; t=t+0.01){
+    for(float x = 0; x < RESOLUTION; x++){
+        float t = x/RESOLUTION;
         int i = 0;
         while(!(T[i] <= t && t < T[i+1] && i <= m)){
             i++;
@@ -258,10 +259,11 @@ void deBoorClosed(vector<float> T, vector<Point> b, int n) {
     int m = static_cast<int>(b.size()-1);
     vector<vector<Point>> temp(m+n, std::vector<Point>(n));
     vector<Point> result = {};
-    for (double t = 0.0; t <= T[m+1]; t += 0.01) {
+    for(float x = 0; x < RESOLUTION; x++){
+        float t = x/RESOLUTION;
         double tMod = t;
         int i = 0;
-        while (!(T[i] <= tMod && tMod < T[i + 1] && i <= m)) {
+        while (T[i] > t && !(t > T[i+1]) && i <= m) {
             i++;
         }
         for (int j = 0; j <= n; j++) {
@@ -293,8 +295,6 @@ void deBoorClosed(vector<float> T, vector<Point> b, int n) {
 }
 
 
-
-
 ///////////////////////////////////////////////////////////
 // Main program entry point
 int main(int argc, char* argv[])
@@ -309,9 +309,10 @@ int main(int argc, char* argv[])
     SetupRC();
     ////////// put your framebuffer drawing code here /////////////
     std::vector<Point> polygon = {Point(30, 30), Point(70,400), Point(300, 400), Point(340, 30)};
-//    drawPolygon(polygon, 255, 0, 0);
+    drawPolygon(polygon, 255, 0, 0);
+    //    deCasteljau(polygon);
     vector<float> tParams = {0.0, 0.0, 0.0, 0.32, 0.49, 0.75, 1, 1, 1};
-    deBoor(tParams, polygon, 2);
+    deBoorClosed(tParams, polygon, 2);
     
     glutMainLoop();
     

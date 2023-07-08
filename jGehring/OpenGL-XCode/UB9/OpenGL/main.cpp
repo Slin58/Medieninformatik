@@ -110,7 +110,7 @@ void RenderScene(void)
     tblock.transform = glm::rotate(tblock.transform, rot.y, glm::vec3(0,1,0));
     tblock.transform = glm::rotate(tblock.transform, rot.z, glm::vec3(0,0,1));
     tblock.transform = glm::translate(tblock.transform, trans);
-    tblock.look = glm::lookAt(glm::vec3(0.0,0.0,5.0), glm::vec3(0.0,0.0,0.0), glm::vec3(0,1,0));
+    tblock.look = glm::lookAt(glm::vec3(0.0,0.0,-5.0), glm::vec3(0.0,0.0,0.0), glm::vec3(0,1,0));
     float fovyRad = fovy*3.1415/180;
     tblock.proj = glm::perspective(fovyRad, 1.0f, 0.1f, 20.0f);
     

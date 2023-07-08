@@ -29,7 +29,6 @@ object { return(OBJECT); }
 poly { return(POLY); }
 polygon { return(POLY); } /* equivalent spelling */
 vertex { return(VERTEX); }
-sphere { return(SPHERE); }
 quadric { return(QUADRIC); }
 property { return(PROPERTY); }
 ambient { return(AMBIENT); }
@@ -39,9 +38,6 @@ mirror { return(MIRROR); }
 ambience { return(AMBIENCE); }
 background { return(BACKGROUND); }
 light { return(LIGHT); }
-f {return(POLY); }
-v {return (VERTEX);}
-vn.* {}
 direction { return(DIRECTION); }
 color { return(COLOR); } /* equivalent spelling */
 up { return(UP); } /* equivalent spelling */

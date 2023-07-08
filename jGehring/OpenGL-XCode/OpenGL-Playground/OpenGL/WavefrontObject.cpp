@@ -17,6 +17,7 @@ WavefrontObject::WavefrontObject(bool identicalNormals){
 
 vector<float> WavefrontObject::transformToBuffer(){
     vector<float> result = {};
+    this->normalizeVertices();
     if(faceElements.size() > 0 && faceElements[0].z) this->hasNormals = true;
     else if(identicalNormals) this->createIdenticalNormals();
     else this->createAverageNormals();
@@ -69,6 +70,7 @@ glm::vec3 splitFaceElement(string &token){
     else if (partsSize == 2 && fType == 2) faceElement = glm::vec3(parts[0], parts[1], 0);
     else if (partsSize == 2 && fType == 1) faceElement = glm::vec3(parts[0], 0, parts[1]);
     else faceElement = glm::vec3(parts[0], parts[1], parts[2]);
+    if(partsSize > 3) printf("ALARM! \n");
     return faceElement;
 }
 
@@ -133,10 +135,6 @@ vector<glm::vec3> WavefrontObject::triangleNormalVectors() {
         int normalIndex = div(j, 3).quot + 1;
         int offset = 0 + (this->faceElements[j].x - 1) * 4;
         glm::vec3 vertex = glm::vec3(this->vertices[offset], this->vertices[offset+1], this->vertices[offset+2]);
-//        triangleVertices.push_back(vertex);
-//        vertex = glm::vec3(this->vertices[offset+4], this->vertices[offset+5], this->vertices[offset+6]);
-//        triangleVertices.push_back(vertex);
-//        vertex = glm::vec3(this->vertices[offset+8], this->vertices[offset+9], this->vertices[offset+10]);
         triangleVertices.push_back(vertex);
         this->faceElements[j].z = normalIndex;
     }
@@ -166,11 +164,10 @@ void WavefrontObject::createAverageNormals(){
     for(int i = 1; i <= numberOfVertices; i++){
         glm::vec3 vertexNormal(0.0);
         int count = 0;
-        //        set<int, greater<int>> visited = {};
         for(glm::vec3 face : faceElements){
             if(face.x == i) {
                 vertexNormal += normals[face.z];
-                //                visited.insert(i);
+                face.z = i;
                 count++;
             }
         }
@@ -180,4 +177,17 @@ void WavefrontObject::createAverageNormals(){
         this->normals.push_back(vertexNormal.z);
     }
     this->hasNormals = true;
+}
+
+void WavefrontObject::normalizeVertices(){
+    float xMax = 0;
+    for(int i = 0; i < vertices.size(); i+=4){
+        xMax = max(xMax, max(abs(vertices[i]), max(abs(vertices[i+1]), abs(vertices[i+2]))));
+    }
+    if(xMax > 1.0)
+    for(int i = 0; i < vertices.size(); i+=4){
+        vertices[i] /= xMax;
+        vertices[i+1] /= xMax;
+        vertices[i+2] /= xMax;
+    }
 }

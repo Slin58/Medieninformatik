@@ -17,7 +17,7 @@
 #include<boost/algorithm/string.hpp>
 #include <string_view>
 #include "iostream"
-#include <set>
+#include "numeric"
 
 using namespace::std;
 using namespace::boost;
@@ -37,6 +37,7 @@ public:
     void createIdenticalNormals();
     void createAverageNormals();
     vector<glm::vec3> triangleNormalVectors();
+    void normalizeVertices();
 };
 
 WavefrontObject readWavefrontObject(string path = "", bool identicalNormals=false);

@@ -5,22 +5,22 @@
 #
 # Bild-Parameter
 #
-resolution      1250    1250		# Bildbreite Bildhoehe (in Pixeln)
-background	0.3	0.4	0.5		    # Hintergrundfarbe 
+resolution      500    500		# Bildbreite Bildhoehe (in Pixeln)
+background	0.8	0.3	0.6		    # Hintergrundfarbe schwarz
 
 # 
 # Projektion
 #
-eyepoint     0.0   0.0 8000.0	# Auge-Koordinaten
-lookat        0.0 250.0 0.0	# Punkt, auf den das Auge schaut
-fovy            10			# Field-of-view-Winkel
-aspect          1.0		# Verhaeltnis Breite zu Hoehe
-up             0.0    -1.0     0.0     # Up-Vektor gibt an, wo oben ist
+eyepoint     0.0   0.0      1500.0	# Auge-Koordinaten
+lookat        -15.0    25.0      -40.0	# Punkt, auf den das Auge schaut
+fovy            50			# Field-of-view-Winkel
+aspect          1.0			# Verhaeltnis Breite zu Hoehe
+up             0.0     1.0     0.0     # Up-Vektor gibt an, wo oben ist
 
 #
 #  Globales Licht-Informationen
 #
-ambience	0.0	0.0	0.0	# schwarz
+ambience	0.1	0.1	0.1	# schwarz
 
 
 #
@@ -54,7 +54,7 @@ object geo2 quadric 1.0 0.0 0.0 -400.0 1.0 0.0 -100.0 1.0 200.0 30000.0
 
 # Geometriebeschreibung 3	(Kugel bei <0,-1200,-500> mit Radius 1000)
 object geo3 quadric 1.0 0.0 0.0 0.0 1.0 0.0 2400.0 1.0 1000.0 690000.0
-#object sphere	0.0   -1200.0   -500.0   1000.0
+object sphere1 sphere	-15.0   25.0   -40.0   100.0
 
 
 # Geometriebeschreibung 4	(Kugel bei <-100,25,-300> mit Radius 50)
@@ -116,8 +116,9 @@ color	   0.0	 0.5	 1.0
 #
 
 # Zuordnungstabelle
-object	 geo1	 prop3
-object	 geo2	 prop1
-object	 geo3	 prop2
-object	 geo4	 prop3
-object	 geo5	 prop1
+object	 geo1	 prop3 1.0
+object	 geo2	 prop1 1.0
+object	 geo3	 prop2 1.0
+object	 geo4	 prop3 1.0
+object	 geo5	 prop1 1.0
+object sphere1 prop1 1.0

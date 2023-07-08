@@ -51,24 +51,10 @@ struct {
 	} light;
 
 int yylex(void);
-extern void add_resolution(int width, int height);
-extern void add_eyepoint(double x, double y, double z);
-extern void add_lookat(double x, double y, double z);
-extern void add_background(double r, double g, double b);
-extern void add_ambience(double r, double g, double b);
-extern void add_fovy(double fov);
-extern void add_up(double x, double y, double z);
-extern void add_aspect(double aspect);
-extern void add_sphere(char *n, double posX, double posY, double posZ, double radius);
 extern void add_quadric(char *n, double a, double b, double c, double d, double e, double f, double g, double h, double j, double k);
 extern void add_property(char *n, double ar, double ag, double ab, double r, double g, double b, double s, double m);
-extern void add_objekt(char *sName, char *pName, double scaling);
+extern void add_objekt(char *ns, char *np);
 extern void add_light(char *n, double dirx, double diry, double dirz, double colr, double colg, double colb);
-extern void add_vertex(double x, double y, double z);
-extern void init_polygon_surface(char *n);
-extern void add_index(int i);
-extern int transformToInt(char* n);
-extern void reset_polycount();
 %}
 
 
@@ -80,7 +66,7 @@ extern void reset_polycount();
 %token <floatval> FLOAT
 %token <stringval> STRING
 %token RESOLUTION EYEPOINT LOOKAT UP FOVY ASPECT
-%token OBJECT QUADRIC SPHERE POLY
+%token OBJECT QUADRIC POLY
 %token VERTEX
 %token PROPERTY AMBIENT DIFFUSE SPECULAR MIRROR
 %token AMBIENCE BACKGROUND
@@ -89,8 +75,7 @@ extern void reset_polycount();
 %%
 
 scene 
-    : picture_parameters some_viewing_parameters global_lighting geometry
-    |
+    : /* picture_parameters some_viewing_parameters global_lighting */ geometry
     ;
 
 some_viewing_parameters
@@ -127,12 +112,8 @@ picture_parameters
     ;
 
 picture_parameter
-    : {
-    fprintf(stderr, "processing resolution...\n");
-    }
-    resolution
-    | {fprintf(stderr, "processing background ...\n");}
-    background
+    : resolution
+    | background
     ;
 
 viewing_parameter
@@ -145,64 +126,43 @@ viewing_parameter
 
 resolution
     : RESOLUTION index index
-      { printf("resolution %d %d\n", $2, $3 );
-          add_resolution($2, $3);
-          resolution_seen = 1;
-      }
+      { printf("resolution %d %d\n", $2, $3 ); }
     ;
 
 background
     : BACKGROUND colorVal colorVal colorVal
-      { printf("background %f %f %f\n", $2, $3, $4);
-          add_background($2, $3, $4);
-      }
+      { printf("background %f %f %f\n", $2, $3, $4); }
     ;
 
 
 eyepoint
     : EYEPOINT realVal realVal realVal
-      { printf("eyepoint %f %f %f\n", $2, $3, $4 );
-          add_eyepoint($2, $3, $4);
-          eyepoint_seen = 1;
-      }
+      { printf("eyepoint %f %f %f\n", $2, $3, $4 ); }
     ;
 
 lookat
     : LOOKAT realVal realVal realVal
-      { printf("lookat %f %f %f\n", $2, $3, $4 );
-          add_lookat($2, $3, $4);
-          lookat_seen = 1;
-      }
+      { printf("lookat %f %f %f\n", $2, $3, $4 ); }
     ;
 
 up
     : UP realVal realVal realVal
-      { printf("up %f %f %f\n", $2, $3, $4);
-          add_up($2, $3, $4);
-          up_seen = 1;
-      }
+      { printf("up %f %f %f\n", $2, $3, $4); }
     ;
 
 fovy
     : FOVY realVal
-      { printf("fovy %f\n", $2);
-          add_fovy($2);
-      }
+      { printf("fovy %f\n", $2); }
     ;
 
 aspect
     : ASPECT realVal
-      { printf("aspect %f\n", $2 );
-          add_aspect($2);
-          aspect_seen = 1;
-      }
+      { printf("aspect %f\n", $2 ); }
     ;
 
 global_lighting
     : AMBIENCE colorVal colorVal colorVal
-      { printf("ambience %f %f %f\n", $2, $3, $4);
-          add_ambience($2, $3, $4);
-      }
+      { printf("ambience %f %f %f\n", $2, $3, $4); }
     ;
 
 geometry 
@@ -237,7 +197,6 @@ surfaces
 one_surface
     : quadric_surface
     | polygon_surface
-    | sphere_surface
     ;
 
 quadric_surface
@@ -249,19 +208,10 @@ quadric_surface
       }
     ;
 
-sphere_surface
-: OBJECT STRING SPHERE realVal realVal realVal realVal
-{
-    printf("sphere added %s %f %f %f %f \n", $2, $4, $5, $6, $7);
-    add_sphere($2, $4, $5, $6, $6);
-}
-;
-    
 polygon_surface
     : OBJECT STRING POLY 
       {
-          printf("add polygon surface\n");
-          init_polygon_surface($2);
+	printf("object poly\n"); 
       }
       vertex_section polygon_section
     ;
@@ -277,9 +227,7 @@ vertices
 
 one_vertex
     : VERTEX realVal realVal realVal
-      { printf("vertex %f %f %f\n", $2, $3, $4);
-          add_vertex($2, $3, $4);
-      }
+      { printf("vertex %f %f %f\n", $2, $3, $4); }
     ;
 
 polygon_section
@@ -293,7 +241,7 @@ polygons
 
 one_polygon
     : POLY  
-    { printf("polygon\n"); reset_polycount();}
+      { printf("polygon"); }
       indices
       { printf("\n"); }
     ;
@@ -305,7 +253,7 @@ indices
 
 one_index
 	: index
-	{ add_index($1); }
+	{ printf("polygon idx %d\n", $1); }
 	;
 
 property_section
@@ -367,9 +315,9 @@ objects
     ;
 
 one_object
-    : OBJECT STRING STRING realVal
+    : OBJECT STRING STRING
       {
-		add_objekt($2, $3, $4);
+		add_objekt($2, $3);
 		free($2);
 		free($3);
       }
@@ -440,15 +388,14 @@ realVal
       { $$ = (float) $1; /* conversion from integers */ }
     ;
 
-index : INTEGER | STRING
+index : INTEGER
       {
-          int val = transformToInt($1);
     	if ( $1 < 1 ) {
 	    yyerror("index out of range (only 1 or more allowed)");
 	} /* if */
 
 	/* pass that value up the tree */
-	$$ = val;
+	$$ = $1;
       }
     ;
     

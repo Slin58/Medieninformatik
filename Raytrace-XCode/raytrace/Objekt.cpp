@@ -11,13 +11,14 @@
 
 Vector Objekt::get_normal(Vector &v)
 {
-        Vector abc = Vector(surface->a+surface->a, surface->b, surface->c);
-        Vector bef = Vector(surface->b, surface->e+surface->e, surface->f);
-        Vector cfh = Vector(surface->c, surface->f, surface->h+surface->h);
-        Vector normal(
-                      v.dot(abc) + surface->d,
-                      v.dot(bef) + surface->g,
-                      v.dot(cfh) + surface->j);
-        return normal.normalize();
+    Vector abc = Vector(surface->a+surface->a, surface->b, surface->c);
+    Vector bef = Vector(surface->b, surface->e+surface->e, surface->f);
+    Vector cfh = Vector(surface->c, surface->f, surface->h+surface->h);
+	Vector normal(
+		v.dot(abc) + surface->d,
+		v.dot(bef) + surface->g,
+		v.dot(cfh) + surface->j);
+
+	return normal.normalize();
 } /* get_normal() */
 

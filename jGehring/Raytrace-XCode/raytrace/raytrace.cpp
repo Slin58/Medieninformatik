@@ -6,7 +6,11 @@
 #include "Color.h"
 #include "Image.h"
 #include "vector"
-
+#include "algorithm"
+#include "numeric"
+#define PSTLD_HEADER_ONLY   // no prebuilt library, only the header
+#define PSTLD_HACK_INTO_STD // export into namespace std
+#include "pstld.h"
 const double SCREENWIDTH = 1000;
 const double SCREENHEIGHT = 1000;
 
@@ -29,6 +33,7 @@ Vector up(0, 1, 0);
 Color ambience(1, 1, 1);
 double fovy = 55.0;
 double aspect = 1.0;
+vector<int> polyCount = {};
 
 
 extern "C" {
@@ -88,9 +93,19 @@ void init_polygon_surface(char *n){
     surfaces.push_back(poly_surface);
 }
 
+void reset_polycount(){
+    fprintf(stderr, "reset polycount\n");
+    if(surfaces.back().currPolyCount == 4) {
+        surfaces.back().splitToTriangle();
+        fprintf(stderr, "polygon of %s splitted to triangle\n", surfaces.back().getName().data());
+    }
+    surfaces.back().currPolyCount = 0;
+}
+
 void add_index(int i){
     fprintf(stderr,"  adding index %d \n", i);
     surfaces.back().indices.push_back(i);
+    surfaces.back().currPolyCount++;
 };
 
 void add_property(char *n,  double ar, double ag, double ab, double r, double g, double b, double s, double m) {
@@ -102,7 +117,16 @@ void add_vertex(double x, double y, double z){
     surfaces.back().vertices.push_back(Vector(x,y,z));
 }
 
-void add_objekt(char *sName, char *pName) {
+int transformToInt(char* n){
+    string s = n;
+    s = s.substr(0, s.find("//"));
+    int val = stoi(s);
+    printf("adding index from string %s: %d", n, val);
+    
+    return val;
+}
+
+void add_objekt(char *sName, char *pName, double scaling) {
     Surface *s = NULL;
     Property *p = NULL;
     string surfaceName(sName);
@@ -127,7 +151,10 @@ void add_objekt(char *sName, char *pName) {
         fprintf(stderr, "Property not found: %s\n", pName);
         exit(1);
     }
-    
+    if(!s->isQuadricSurface) {
+        s->normalizeAndScaleVertices(scaling);
+        s->setBoundingVolume();
+    }
     objekte.push_back(Objekt(s, p));
     fprintf(stderr, "  adding object: surface %s, property %s\n", sName, pName);
 };
@@ -138,32 +165,8 @@ void add_sphere(char *n, double posX, double posY, double posZ, double radius){
 };
 }
 
-int main(int argc, char* argv[])
-{
-    /* parse the input file */
-    yyin = fopen("data/scene.data","r");
-    if(yyin == NULL) {
-        fprintf(stderr, "Error: Konnte Datei nicht oeffnen\n");
-        return 1;
-    }
-    yyparse();
-    fclose (yyin);
-    
-    Vector VPN=eye.vsub(lookat);
-    double height = 2*tan(0.5*fovy*M_PI/180)*VPN.veclength();  /* Winkel werden in Grad angegeben! */
-    double width = height*aspect;
-    VPN = VPN.normalize();
-    Vector u_Vec=up.cross(VPN).normalize();
-    Vector v_Vec=u_Vec.cross(VPN).normalize();
-    
-    double dx = width / (double)Xresolution;
-    double dy = height / (double)Yresolution;
-    double y = -0.5 * height;
-    Ray ray(Vector(1,0,0), eye, background, ambience, 0);
-    
-    Image bild(Xresolution, Yresolution);
-    
-    for (int scanline=0; scanline < Yresolution; scanline++) {
+static void traceRay(Image &bild, double &dx, double &dy, Ray &ray, Vector &u_Vec, Vector &v_Vec, double &width, double &y) {
+    for(int scanline=0; scanline < Yresolution; scanline++) {
         
         //        printf("%4d\r", Yresolution-scanline);
         y += dy;
@@ -183,10 +186,56 @@ int main(int argc, char* argv[])
                      color.b > 1.0 ? 255 : int(255 * color.b));
         }
     }
+}
+
+int main(int argc, char* argv[])
+{
+    //     parse the input file
+    yyin = fopen("data/scene_bunnyHR.data","r");
+    if(yyin == NULL) {
+        fprintf(stderr, "Error: Konnte Datei nicht oeffnen\n");
+        return 1;
+    }
+    yyparse();
+    fclose (yyin);
+    
+    Vector VPN=eye.vsub(lookat);
+    double height = 2*tan(0.5*fovy*M_PI/180)*VPN.veclength();  /* Winkel werden in Grad angegeben! */
+    double width = height*aspect;
+    VPN = VPN.normalize();
+    Vector u_Vec=up.cross(VPN).normalize();
+    Vector v_Vec=u_Vec.cross(VPN).normalize();
+    
+    double dx = width / (double)Xresolution;
+    double dy = height / (double)Yresolution;
+    //    double y = -0.5 * height;
+    
+    
+    Image bild(Xresolution, Yresolution);
+    vector<int> yLoop(Yresolution);
+    std::iota(std::begin(yLoop), std::end(yLoop), 0);
+    std::for_each(std::execution::par, std::begin(yLoop), std::end(yLoop), [&bild, &height, &v_Vec, &u_Vec, &VPN, &dx, &dy, &width](int i) {
+        
+        double y = -0.5*height + dy*i;
+        double x = -0.5 * width;
+        Ray ray(Vector(1,0,0), eye, background, ambience, 0);
+        for (int sx=0; sx < Xresolution; sx++) {
+            // ray.setDirection(Vector(x, y, 0.0).vsub(ray.getOrigin()).normalize());
+            ray.setDirection(lookat.vadd(u_Vec.svmpy(x).vadd(v_Vec.svmpy(y))).vsub(ray.getOrigin()).normalize());
+            x += dx;
+            //            Color color = ray.shade(objekte, lights, sx, scanline);
+            Color color = ray.shade(objekte, lights);
+            
+            
+            bild.set(sx, i,
+                     color.r > 1.0 ? 255 : int(255 * color.r),
+                     color.g > 1.0 ? 255 : int(255 * color.g),
+                     color.b > 1.0 ? 255 : int(255 * color.b));
+        }
+    });
     
     char name[] = "raytrace-bild.ppm";
     bild.save(name);
     
-    return 0;
 }
 

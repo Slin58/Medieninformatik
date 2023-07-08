@@ -5,6 +5,8 @@ layout (location = 1) in vec3 normalIn;
 uniform vec3 lightPos;
 uniform mat3 normalTransform;
 uniform vec3 lightColor;
+uniform vec3 viewPos;
+
 
 smooth out vec4 inColor;
 layout(std140) uniform TBlock {
@@ -18,7 +20,6 @@ void main() {
     gl_Position = proj * look * transform * position;
     vec3 vertexPos = vec3(gl_Position);
     vec3 lightDir = lightPos - vertexPos;
-    vec3 viewPos = vec3(0.0f, 0.0f, 0.0f);
     vec3 viewDir = normalize(viewPos - vertexPos);
     vec3 normal = normalTransform*normalIn;
     vec3 l = normalize(lightDir);
@@ -26,7 +27,7 @@ void main() {
     vec3 reflectDir = reflect(-l, n);
     vec3 r = normalize(reflectDir);
     float diff = max(dot(l, n), 0.0);
-    float spec = pow(max(dot(viewDir, r), 0.0), 32);
+    float spec = pow(max(dot(viewDir, r), 0.0), 2);
     vec3 specular = 0.5f * spec * lightColor;
     vec3 ambient = 0.1f *  lightColor;
     vec3 result = (ambient+diff)*objectColor+specular;
