@@ -105,7 +105,7 @@ static void bindVBO(WavefrontObject &object) {
     vertexBufferObjects.push_back(vbo);
     vector<float> buffer = object.transformToBuffer();
     int stride = 0;
-    triangleCount = static_cast<int>(object.vertices.size()*3);
+    triangleCount += static_cast<int>(object.vertices.size()*4);
     if(object.hasNormals && object.hasTextures) stride = 9;
     else if(object.hasTextures) stride = 6;
     else if(object.hasNormals) stride = 7;
@@ -454,9 +454,87 @@ void drawSphere(bool createIdenticalNormals, double radius = 1, int cuts = 8){
         sphere.faceElements.push_back(vec3(count, 0, 0));
         count++;
     }
-    
     bindVBO(sphere);
 }
+
+void drawTorus(bool createIdenticalNormals, double innerRadius = 0.5, double outerRadius = 0.1, int cuts = 8){
+    WavefrontObject torus = WavefrontObject(createIdenticalNormals);
+    vector<vec3> templateVertices = {};
+    int count = 1;
+    double cut = PI/cuts;
+    for(int theta = 0; theta <= 2*cuts; theta++){
+        for(int phi = 0; phi <= 2*cuts; phi++){
+            double newX =  (innerRadius + outerRadius*cos(phi*cut)) * cos(theta*cut);
+            double newZ = (innerRadius + outerRadius*cos(phi*cut)) * sin(theta*cut);
+            double newY = outerRadius * sin(phi*cut);
+            templateVertices.push_back(vec3(newX, newY, newZ));
+        }
+    }
+    for(int i = 1; i < templateVertices.size() - 1; i+=1){
+        torus.vertices.push_back(templateVertices[i].x);
+        torus.vertices.push_back(templateVertices[i].y);
+        torus.vertices.push_back(templateVertices[i].z);
+        torus.vertices.push_back(1.0);
+        torus.faceElements.push_back(vec3(count, 0, 0));
+        count++;
+        if(i+2*cuts+2 < templateVertices.size()){
+            torus.vertices.push_back(templateVertices[i+1].x);
+            torus.vertices.push_back(templateVertices[i+1].y);
+            torus.vertices.push_back(templateVertices[i+1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].x);
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].y);
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].x);
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].y);
+            torus.vertices.push_back(templateVertices[i+2*cuts+1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            torus.vertices.push_back(templateVertices[i+1].x);
+            torus.vertices.push_back(templateVertices[i+1].y);
+            torus.vertices.push_back(templateVertices[i+1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            torus.vertices.push_back(templateVertices[i+2*cuts+2].x);
+            torus.vertices.push_back(templateVertices[i+2*cuts+2].y);
+            torus.vertices.push_back(templateVertices[i+2*cuts+2].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+        }
+        else {
+            torus.vertices.push_back(templateVertices[i-2*cuts-1].x);
+            torus.vertices.push_back(templateVertices[i-2*cuts-1].y);
+            torus.vertices.push_back(templateVertices[i-2*cuts-1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+            torus.vertices.push_back(templateVertices[i-1].x);
+            torus.vertices.push_back(templateVertices[i-1].y);
+            torus.vertices.push_back(templateVertices[i-1].z);
+            torus.vertices.push_back(1.0);
+            torus.faceElements.push_back(vec3(count, 0, 0));
+            count++;
+        }
+    }
+    //    for(vec3 &v : templateVertices){
+    //        torus.vertices.push_back(v.x);
+    //        torus.vertices.push_back(v.y);
+    //        torus.vertices.push_back(v.z);
+    //        torus.vertices.push_back(1.0);
+    //        torus.faceElements.push_back(vec3(count, 0, 0));
+    //        count++;
+    //    }
+    bindVBO(torus);
+}
+
 
 ///////////////////////////////////////////////////////////
 // Setup the rendering state
@@ -466,10 +544,11 @@ void SetupRC(void)
     
     
     
-    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/cube_without_normals.obj", false);
+//    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/teapot/teapot.obj", false);
 //    bindWavefrontObject("/Users/jogehring/Documents/Informatik/Computergrafik/datasets/sphere.obj", false);
     //    drawCube(true);
 //    drawSphere(false, 1.0, 20);
+    drawTorus(true);
     
     GLuint tex;
     GLuint sampler;

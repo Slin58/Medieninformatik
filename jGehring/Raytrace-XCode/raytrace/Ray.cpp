@@ -25,7 +25,7 @@ Color Ray::shade(vector<Objekt> &objects, vector<Light> &lights)
     Color cur_color;
     double min_t = DBL_MAX, t;
     
-    Vector intersection_position, normal, closestNormal;
+    Vector intersection_position, normal, closestNormal(1.0, 1.0, 1.0);
     Ray lv, reflected_ray;
     bool something_intersected = false;
     
@@ -190,14 +190,12 @@ double Ray::intersect(Objekt &obj, Vector &normal)
         t = calculateQuadricT(*surf);
     }
     else {
-//        char *n = "test";
-//        double posX = surf->boundingVolume[0];
-//        double posY = surf->boundingVolume[1];
-//        double posZ = surf->boundingVolume[2];
-//        double radius = surf->boundingVolume[3];
-//        Surface bv(n, 1.0, 0, 0, -2.0*posX, 1.0, 0, -2.0*posY, -2.0*posZ, 0.0, (posX*posX)+(posY*posY)+(posZ*posZ)-(radius*radius));
-//        double isIntersected = calculateQuadricT(bv);
-//        if(isIntersected < 0.001){
+        double posX = surf->boundingVolume[0];
+        double posY = surf->boundingVolume[1];
+        double posZ = surf->boundingVolume[2];
+        double radius = surf->boundingVolume[3];
+        double isIntersected = direction.normalize().cross(Vector(posX, posY, posZ).vsub(origin)).veclength();
+        if(isIntersected < radius){
             //Möller-Trumbore algorithm
             const float EPSILON = 0.0000001;
             for (int i = 0; i < surf->indices.size(); i+=3){
@@ -210,17 +208,17 @@ double Ray::intersect(Objekt &obj, Vector &normal)
                 edge2 = vertex2.vsub(vertex0);
                 h = direction.cross(edge2);
                 a = edge1.dot(h);
-                
+
                 if (a > -EPSILON && a < EPSILON)
                     return false;    // This ray is parallel to this triangle.
-                
+
                 f = 1.0 / a;
                 s = origin.vsub(vertex0);
                 u = f * s.dot(h);
-                
+
                 q = s.cross(edge1);
                 v = f * direction.dot(q);
-                
+
                 if (v < 0.0 || u + v > 1.0 || u < 0.0 || u > 1.0)
                     continue;
                 else{
@@ -231,7 +229,7 @@ double Ray::intersect(Objekt &obj, Vector &normal)
                     }
                     break;
                 }
-//            }
+            }
         }
     }
     return ((0.001 < t) ? t : -1.0);

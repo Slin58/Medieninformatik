@@ -76,8 +76,6 @@ glm::vec3 splitFaceElement(string &token){
 
 WavefrontObject readWavefrontObject(string path, bool identicalNormals){
     WavefrontObject result = WavefrontObject(identicalNormals);
-    glm::vec3 avg(0.0f);
-    int vCount = 0;
     if(path == ""){
         return result;
     } else {
@@ -86,7 +84,6 @@ WavefrontObject readWavefrontObject(string path, bool identicalNormals){
         file.open(path,ios::in);
         if (file.is_open()){
             string tp;
-
             while(getline(file, tp)){
                 string line = trim_right_copy(tp);
                 if(line == "") continue;
@@ -96,12 +93,10 @@ WavefrontObject readWavefrontObject(string path, bool identicalNormals){
                 string lineStart = *beg;
                 ++beg;
                 if(lineStart == "v") {
-                    vCount++;
                     bool needHomogenous = std::distance(beg, tok.end()) == 3;
                     for_each(beg, tok.end(), [&result](string s){
                         float val = lexical_cast<float>(s);
                         result.vertices.push_back(val);});
-                    avg += glm::vec3(result.vertices[result.vertices.size()-3], result.vertices[result.vertices.size()-2], result.vertices[result.vertices.size()-1]);
                     if(needHomogenous) result.vertices.push_back(1.0f);
                 }
                 else if (lineStart == "f"){
@@ -132,7 +127,6 @@ WavefrontObject readWavefrontObject(string path, bool identicalNormals){
         }
         file.close();
     }
-    result.avgPoint = avg * (1.0f/vCount);
     return result;
 }
 

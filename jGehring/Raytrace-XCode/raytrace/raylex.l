@@ -30,6 +30,7 @@ poly { return(POLY); }
 polygon { return(POLY); } /* equivalent spelling */
 vertex { return(VERTEX); }
 sphere { return(SPHERE); }
+path { return (PATH); }
 quadric { return(QUADRIC); }
 property { return(PROPERTY); }
 ambient { return(AMBIENT); }

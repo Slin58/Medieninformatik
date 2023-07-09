@@ -32,7 +32,6 @@ public:
     vector<float> textures;
     bool hasNormals = false;
     bool hasTextures = false;
-    glm::vec3 avgPoint;
     vector<glm::vec3> faceElements;
     vector<float> transformToBuffer();
     void createIdenticalNormals();

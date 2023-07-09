@@ -21,7 +21,7 @@ using namespace::Eigen;
 
 
 
-const int RESOLUTION = 264;
+const int RESOLUTION = 200;
 
 struct RGBPixel {
     GLfloat R, G, B;
@@ -148,8 +148,7 @@ void drawPolygon(const vector<hPoint> &points, int r, int g, int b){
     for(int i = 1; i < points.size(); i++){
         hPoint b0 = points[i - 1];
         hPoint b1 = points[i];
-        if(cohenSutherland(b0, b1, r, g, b))
-            prettyBresenham(b0, b1, r, g, b);
+        prettyBresenham(b0, b1, r, g, b);
     }
 }
 
@@ -306,13 +305,12 @@ int main(int argc, char* argv[])
     SetupRC();
     ////////// put your framebuffer drawing code here /////////////
     
-    std::vector<hPoint> polygon = {hPoint(530, 30, 1), hPoint(30,400, 1), hPoint(400, 600, 1), hPoint(530, 30, 1)};
 
     hPoint p0 = hPoint(0, 0, 1);
-    hPoint p1 = hPoint(255, 50, 1);  //pythagoras(-5, 250, 350, 2, 2,1.1, 0);
-    hPoint p2 = hPoint(255, 130, 1);
-    hPoint p3 = hPoint(255, 230, 1);
-    wuDrawLine(p0, p2, 250, 9, 0);
+    hPoint p1 = hPoint(200, 50, 1);
+//    hPoint p2 = hPoint(255, 130, 1);
+    hPoint p3 = hPoint(200, 30, 1);
+//    wuDrawLine(p0, p2, 250, 0, 0);
     newWu(p0, p1, 0, 250, 0);
     prettyBresenham(p0, p3, 250, 0, 0);
 

@@ -8,6 +8,7 @@
 #include "vector"
 #include "algorithm"
 #include "numeric"
+#include "WavefrontObject.hpp"
 #define PSTLD_HEADER_ONLY   // no prebuilt library, only the header
 #define PSTLD_HACK_INTO_STD // export into namespace std
 #include "pstld.h"
@@ -93,6 +94,17 @@ void init_polygon_surface(char *n){
     surfaces.push_back(poly_surface);
 }
 
+void add_path(char *path){
+    WavefrontObject wfobject = readWavefrontObject(path, false);
+    for(int i = 0; i < wfobject.vertices.size(); i+=4){
+        Vector v(wfobject.vertices[i], wfobject.vertices[i+1], wfobject.vertices[i+2]);
+        surfaces.back().vertices.push_back(v);
+    }
+    for(glm::vec3 &face : wfobject.faceElements){
+        surfaces.back().indices.push_back(face.x);
+    }
+}
+
 void reset_polycount(){
     fprintf(stderr, "reset polycount\n");
     if(surfaces.back().currPolyCount == 4) {
@@ -165,33 +177,10 @@ void add_sphere(char *n, double posX, double posY, double posZ, double radius){
 };
 }
 
-static void traceRay(Image &bild, double &dx, double &dy, Ray &ray, Vector &u_Vec, Vector &v_Vec, double &width, double &y) {
-    for(int scanline=0; scanline < Yresolution; scanline++) {
-        
-        //        printf("%4d\r", Yresolution-scanline);
-        y += dy;
-        double x = -0.5 * width;
-        
-        for (int sx=0; sx < Xresolution; sx++) {
-            // ray.setDirection(Vector(x, y, 0.0).vsub(ray.getOrigin()).normalize());
-            ray.setDirection(lookat.vadd(u_Vec.svmpy(x).vadd(v_Vec.svmpy(y))).vsub(ray.getOrigin()).normalize());
-            x += dx;
-            //            Color color = ray.shade(objekte, lights, sx, scanline);
-            Color color = ray.shade(objekte, lights);
-            
-            
-            bild.set(sx, scanline,
-                     color.r > 1.0 ? 255 : int(255 * color.r),
-                     color.g > 1.0 ? 255 : int(255 * color.g),
-                     color.b > 1.0 ? 255 : int(255 * color.b));
-        }
-    }
-}
-
 int main(int argc, char* argv[])
 {
     //     parse the input file
-    yyin = fopen("data/scene_bunnyHR.data","r");
+    yyin = fopen("data/scene_copy.data","r");
     if(yyin == NULL) {
         fprintf(stderr, "Error: Konnte Datei nicht oeffnen\n");
         return 1;
@@ -208,8 +197,6 @@ int main(int argc, char* argv[])
     
     double dx = width / (double)Xresolution;
     double dy = height / (double)Yresolution;
-    //    double y = -0.5 * height;
-    
     
     Image bild(Xresolution, Yresolution);
     vector<int> yLoop(Yresolution);

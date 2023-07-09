@@ -21,7 +21,7 @@ using namespace::Eigen;
 
 
 
-const int RESOLUTION = 264;
+const int RESOLUTION = 512;
 
 struct RGBPixel {
     GLfloat R, G, B;
@@ -50,24 +50,6 @@ struct hPoint{
 
 bool compareHpointByX(const hPoint& a, const hPoint& b) {
     return a.vec[0] < b.vec[0];
-}
-
-struct PassiveEdge{
-    int xmin, ymin, xmax, ymax;
-    PassiveEdge(int xmin, int ymin,int xmax,int ymax): xmin(xmin), ymin(ymin), xmax(xmax), ymax(ymax){};
-};
-struct ActiveEdge{
-    int ymax;
-    float xs,dx;
-    ActiveEdge(float xs, int ymax, float dx): xs(xs), ymax(ymax), dx(dx){};
-};
-
-bool compareByYmin(const PassiveEdge &a, const PassiveEdge &b){
-    return a.ymin < b.ymin;
-}
-
-bool compareByXs(const ActiveEdge &a, const ActiveEdge &b){
-    return a.xs < b.xs;
 }
 
 hPoint transformToHomogenous(const Point &point){
@@ -182,6 +164,10 @@ bool cohenSutherland(hPoint &p0, hPoint &p1, int r, int g, int b, int xmin = 0, 
             //y = mx+t
             //m = (y1 - y0)/(x1 - x0)
             //x = (y-t)/m
+            //in the following formulas:
+            // 1/m = 1/ ((y1 - y0)/(x1 - x0))
+            // = (x1 - x0)/(y1 - y0)
+            auto test = code & 1;
             if(code & 1){
                 y = ymax;
                 x = p0.vec[0] + (p1.vec[0] - p0.vec[0]) * (ymax - p0.vec[1])/(p1.vec[1] - p0.vec[1]);
@@ -205,40 +191,61 @@ bool cohenSutherland(hPoint &p0, hPoint &p1, int r, int g, int b, int xmin = 0, 
     return result;
 }
 
-bool inside(hPoint& d, hPoint& a, Vector2f& n){
-    Vector2f x = Vector2f(a.vec[0] - d.vec[0], a.vec[1] - d.vec[1]);
-    return x.dot(n) > 0;
+hPoint computeIntersection(hPoint &prevPoint, hPoint &currPoint, Edge &clipEdge){
+    return hPoint(0, 0);
 }
 
-vector<hPoint> clip(vector<hPoint>& polygon, hPoint& a, Vector2f& n){
+bool inside(hPoint &point, Edge &clipEdge){
+    return true;
+}
+
+vector<hPoint> clip(vector<hPoint>& polygon, Edge &clipEdge){
     vector<hPoint> result = {};
-    hPoint d = polygon[polygon.size() - 1];
-    bool dIn = inside(d, a, n);
-    if(dIn) result.push_back(d);
-    
-    for(auto point : polygon){
-        hPoint c = d;
-        bool cIn = dIn;
-        d = point;
-        dIn = inside(d, a, n);
-        
-        if(dIn != cIn){
-            float t = Vector2f(d.vec[0] - c.vec[0], d.vec[1] - c.vec[1]).norm();
-            hPoint intersection = hPoint(d.vec[0]*t + c.vec[0]*(1-t), d.vec[1]*t + c.vec[1]*(1-t), 1);
-            result.push_back(intersection);
-        }
-        if(dIn) result.push_back(d);
+
+    for(auto i = 0; i < polygon.size(); i++){
+        hPoint currentPoint = polygon[i];
+        hPoint prevPoint = polygon[(i - 1) % polygon.size()];
+        hPoint intersectingPoint = computeIntersection(prevPoint, currentPoint, clipEdge);
+        if(inside(currentPoint, clipEdge)){
+            if(!inside(prevPoint, clipEdge)) result.push_back(intersectingPoint);
+            result.push_back(currentPoint);
+        } else if(inside(prevPoint, clipEdge)) result.push_back(intersectingPoint);
     }
     return result;
 }
 
 vector<hPoint> sutherlandHodgman(vector<hPoint> &polygon, vector<hPoint> &border){
     for(int i = 1; i < border.size(); i++){
-        Vector2f vec = Vector2f(border[i-1].vec[1] - border[i].vec[1], border[i].vec[0] - border[i-1].vec[0]);
-        polygon = clip(polygon, border[i-1], vec);
+        Edge clipEdge(border[i-1].vec[0], border[i-1].vec[1], border[i].vec[0], border[i].vec[1]);
+        polygon = clip(polygon, clipEdge);
     }
     return polygon;
 }
+
+//List outputList = subjectPolygon;
+//
+//for (Edge clipEdge in clipPolygon) do
+//List inputList = outputList;
+//outputList.clear();
+//
+//for (int i = 0; i < inputList.count; i += 1) do
+//Point current_point = inputList[i];
+//Point prev_point = inputList[(i − 1) % inputList.count];
+//
+//Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
+//
+//if (current_point inside clipEdge) then
+//if (prev_point not inside clipEdge) then
+//outputList.add(Intersecting_point);
+//end if
+//outputList.add(current_point);
+//
+//else if (prev_point inside clipEdge) then
+//outputList.add(Intersecting_point);
+//end if
+//
+//done
+//done
 
 void drawPolygon(const vector<Point> &points, int r, int g, int b){
     for(int i = 1; i < points.size(); i++){
@@ -345,9 +352,13 @@ int main(int argc, char* argv[])
     ////////// put your framebuffer drawing code here /////////////
 
     
-    std::vector<hPoint> polygon = {hPoint(30, 30, 1), hPoint(230,30, 1), hPoint(100, 200, 1)};
-    fillTriangle(polygon, Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), Vector3f(0.0, 0.0, 1.0));
-
+    std::vector<hPoint> polygon = {hPoint(30, 430, 1), hPoint(100, 200, 1), hPoint(350, 50), hPoint(450, 450), hPoint(30, 430)};
+    std::vector<hPoint> border = {hPoint(100, 100), hPoint(400, 450), hPoint(500, 300), hPoint(400, 100), hPoint(100, 100)};
+    //    fillTriangle(polygon, Vector3f(1.0, 0.0, 0.0), Vector3f(0.0, 1.0, 0.0), Vector3f(0.0, 0.0, 1.0));
+    drawPolygon(border, 250, 0, 0);
+//    drawPolygon(polygon, 0, 250, 0);
+    polygon = sutherlandHodgman(polygon, border);
+    drawPolygon(polygon, 0, 0, 250);
     glutMainLoop();
     
     return 0;

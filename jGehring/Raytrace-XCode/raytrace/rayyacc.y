@@ -68,7 +68,8 @@ extern void add_vertex(double x, double y, double z);
 extern void init_polygon_surface(char *n);
 extern void add_index(int i);
 extern int transformToInt(char* n);
-extern void reset_polycount();
+extern void reset_polycount(void);
+extern void add_path(char *path);
 %}
 
 
@@ -80,7 +81,7 @@ extern void reset_polycount();
 %token <floatval> FLOAT
 %token <stringval> STRING
 %token RESOLUTION EYEPOINT LOOKAT UP FOVY ASPECT
-%token OBJECT QUADRIC SPHERE POLY
+%token OBJECT QUADRIC SPHERE POLY PATH
 %token VERTEX
 %token PROPERTY AMBIENT DIFFUSE SPECULAR MIRROR
 %token AMBIENCE BACKGROUND
@@ -238,6 +239,7 @@ one_surface
     : quadric_surface
     | polygon_surface
     | sphere_surface
+    | path_surface
     ;
 
 quadric_surface
@@ -263,8 +265,25 @@ polygon_surface
           printf("add polygon surface\n");
           init_polygon_surface($2);
       }
-      vertex_section polygon_section
+    vertex_section polygon_section
     ;
+    
+path_surface
+:
+OBJECT STRING POLY
+{
+    printf("add polygon surface\n");
+    init_polygon_surface($2);
+} path_section
+;
+
+path_section
+: PATH STRING
+{
+    printf("Path found! %s\n", $2);
+    add_path($2);
+}
+;
 
 vertex_section
     : vertices
